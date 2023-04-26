@@ -1,6 +1,6 @@
 class PostModel {
   
-  int? idPost;
+  String? idPost;
   String? dscPost;
   String? datePost;
 

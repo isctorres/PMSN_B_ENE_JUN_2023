@@ -1,8 +1,11 @@
 import 'package:day_night_switcher/day_night_switcher.dart';
 import 'package:flutter/material.dart';
+import 'package:pmsnb1/provider/flags_provider.dart';
 import 'package:pmsnb1/provider/theme_provider.dart';
+import 'package:pmsnb1/screens/list_post_cloud_screen.dart';
 import 'package:pmsnb1/screens/list_post_screen.dart';
 import 'package:pmsnb1/settings/styles.dart';
+import 'package:pmsnb1/widgets/futures_modal.dart';
 import 'package:pmsnb1/widgets/modal_add_post.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +23,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
 
     ThemeProvider theme = Provider.of<ThemeProvider>(context);
+    FlagsProvider flags = Provider.of<FlagsProvider>(context);
 
     return Scaffold(
       appBar: AppBar(title: Text('TecBook :)'),),
-      body: const ListPostScreen(),
+      /*body: flags.getupdatePosts() == true 
+        ? const ListPostScreen() 
+        : const ListPostScreen(),*/
+      body: ListPostCloudScreen(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openCustomeDialog,
+        onPressed: () => openCustomeDialog(context,null),
         icon: const Icon(Icons.add_comment),
         label: Text('Post it!')
       ),
@@ -38,6 +45,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               accountName: Text('Rubensin Torres Frias'), 
               accountEmail: Text('ruben.torres@itcelaya.edu.mx')
+            ),
+            ListTile(
+              onTap: ()=>Navigator.pushNamed(context, '/popular'),
+              title: const Text('API Movies'),
+              leading: const Icon(Icons.movie),
+              trailing: const Icon(Icons.chevron_right),
             ),
             DayNightSwitcher(
               isDarkModeEnabled: isDarkThemEnable,
@@ -55,27 +68,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  _openCustomeDialog(){
-    return showGeneralDialog(
-      context: context, 
-      barrierColor: Colors.black.withOpacity(.5),
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return Transform.scale(
-          scale: animation.value,
-          child: Opacity(
-            opacity: animation.value,
-            child: const ModalAddPost(),
-          ),
-        );
-      },
-      transitionDuration: Duration(milliseconds: 200),
-      barrierDismissible: true,
-      barrierLabel: '',
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Container();
-      },
-    );
-  }
-
 }

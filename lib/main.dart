@@ -1,10 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pmsnb1/provider/flags_provider.dart';
 import 'package:pmsnb1/provider/theme_provider.dart';
 import 'package:pmsnb1/routes.dart';
 import 'package:pmsnb1/screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp( MyApp());
 }
 
@@ -14,8 +18,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return ChangeNotifierProvider(
-      create: (context) => ThemeProvider(context),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ThemeProvider(context)),
+        ChangeNotifierProvider<FlagsProvider>(create: (context) => FlagsProvider()),
+      ],
+      //create: (context) => ThemeProvider(context),
       child: PMSNApp()
     );
   }

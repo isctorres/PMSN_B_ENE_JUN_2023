@@ -1,26 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:pmsnb1/database/database_helper.dart';
+import 'package:pmsnb1/firebase/post_collection.dart';
 import 'package:pmsnb1/models/post_model.dart';
+import 'package:pmsnb1/provider/flags_provider.dart';
+import 'package:pmsnb1/widgets/futures_modal.dart';
+import 'package:provider/provider.dart';
 
 class ItemPostWidget extends StatelessWidget {
   ItemPostWidget({super.key,this.postModel});
 
+  PostCollection? postCollection = PostCollection();
+  DatabaseHelper _database = DatabaseHelper();
   PostModel? postModel;
+  FlagsProvider? flags;
 
   @override
   Widget build(BuildContext context) {
 
+    flags = Provider.of<FlagsProvider>(context);
     final iconMore = Icon(Icons.more_horiz, size: 35,);
 
     final cardDesc = Container(
+      padding: EdgeInsets.all(8),
+      alignment: Alignment.topLeft,
       height: 130,
       color: Colors.green,
+      child: Text('${postModel!.dscPost}',),
     );
 
     final rowFooter = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text('Fecha: ', style: TextStyle(fontSize: 18),),
-        Icon(Icons.thumb_up)
+      children: [
+        Text('Fecha: ${postModel!.datePost}', style: TextStyle(fontSize: 18),),
+        const Icon(Icons.thumb_up)
       ],
     );
 
@@ -34,8 +46,22 @@ class ItemPostWidget extends StatelessWidget {
         alignment: Alignment.centerRight,
         height: 60,
         width: double.infinity,
-        child: iconMore,
         color: Colors.green[200],
+        child: PopupMenuButton(
+          icon: iconMore,
+          itemBuilder:(context) {
+            return const [
+              PopupMenuItem<int>(child: Text('Editar'), value: 0,),
+              PopupMenuItem<int>(child: Text('Borrar'), value: 1,),
+            ];
+          },
+          onSelected: (value) {
+            switch (value) {
+              case 0: openCustomeDialog(context, postModel); break;
+              case 1: _showDeleteModal(context); break;
+            }
+          },
+        ),
       ),
     );
 
@@ -78,4 +104,29 @@ class ItemPostWidget extends StatelessWidget {
       ),
     );
   }
+
+  _showDeleteModal(BuildContext context){
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          content: const Text('¿Deseas borrar el post?'),
+          actions: [
+            TextButton(onPressed: () {
+                postCollection!.deletePost(postModel!.idPost!);
+                //_database.ELIMINAR('tblPost', postModel!.idPost!);
+                Navigator.pop(context);
+                flags!.setupdatePosts();
+              }, 
+              child: Text('Aceptar')
+            ),
+            TextButton(onPressed: () => Navigator.pop(context), 
+              child: Text('Cancelar')
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
